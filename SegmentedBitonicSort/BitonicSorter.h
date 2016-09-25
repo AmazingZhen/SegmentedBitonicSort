@@ -23,6 +23,58 @@ int GreatestPowerOf2LessThan(int n)
 	return LeastPowerOf2NotLessThan(n) >> 1;
 }
 
+template <typename T>
+static void bitonicSort_Ascend(std::vector<T> &vec, const T &max)
+{
+	int originLen = vec.size();
+	int listLen = LeastPowerOf2NotLessThan(originLen);
+	vec.resize(listLen, max);
+
+	int i, j, k;
+	// k selects the bit position that determines whether the pairs of 
+	// elements are to be exchanged into ascending or descending order.
+	// length of sort interval get doubled every iteration
+	// (because sort recursion is post-ordered).
+	for (k = 2; k <= listLen; k <<= 1) {
+
+		// j corresponds to the distance apart the elements are that 
+		// are to be compared and conditionally exchanged.
+		// length of merge interval get halved every iteration
+		// (because merge recursion is pre-ordered).
+		for (j = k >> 1; j > 0; j >>= 1) {
+
+			for (i = 0; i < listLen; ++i) {
+				int ixj = i ^ j;
+				std::cout << "k=" << k << std::endl;
+				std::cout << "j=" << j << std::endl;
+				std::cout << "i=" << i << std::endl;
+				std::cout << "ixj=" << ixj << std::endl;
+
+				if (i < ixj) {
+					if ((i & k) != 0) {
+						if (vec[i] < vec[ixj]) {
+							std::swap(vec[i], vec[ixj]);
+						}
+					}
+					else {    // ((i & k) == 0)
+						if (vec[i] > vec[ixj]) {
+							std::swap(vec[i], vec[ixj]);
+						}
+					}
+				}
+
+				for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
+					std::cout << *iter << ',';
+				}
+				std::cout << std::endl;
+			}
+
+		}
+	}
+
+	vec.resize(originLen);
+}
+
 // type of items in List must be Item.
 // there must be operator[] in List.
 template <typename Item, typename List>
@@ -32,13 +84,70 @@ public:
 	BitonicSorter(List &list, int len) : list(list), listLen(len) {}
 
 	// if (ascend == true), the list will be sorted in ascending order
-	void sort(bool ascend = true)
+	void recursiveSort(bool ascend = true)
 	{
 		bitonicSort(ascend, 0, listLen);
 	}
 
-	void print() const
-	{
+
+    // http://www.tools-of-computing.com/tc/CS/Sorts/bitonic_sort.htm
+	void nonRecursiveSort(bool ascend = true) {
+		if (listLen == 0) {
+			return ;
+		}
+
+		int N = LeastPowerOf2NotLessThan(listLen);
+		List tempList = new Item[N];
+
+		int extremum = list[0];
+		if (ascend) {
+			for (int i = 1; i < listLen; i++) {
+				if (list[i] > extremum) {
+					extremum = list[i];
+				}
+			}
+		}
+		else {
+			for (int i = 1; i < listLen; i++) {
+				if (list[i] < extremum) {
+					extremum = list[i];
+				}
+			}
+		}
+
+		for (int i = 0; i < listLen; i++) {
+			tempList[i] = list[i];
+		}
+		for (int i = listLen; i < N; i++) {
+			tempList[i] = extremum;
+		}
+
+		int i, j, k;
+		for (k = 2; k <= N; k = k << 1) {
+			for (j = k >> 1; j > 0; j = j >> 1) {
+				for (i = 0; i < N; i++) {
+					int ixj = i ^ j;
+
+					if ((ixj) > i) {
+						if ((i & k) == 0 && (tempList[i] > tempList[ixj]) == ascend) {
+							swap(tempList[i], tempList[ixj]);
+						}
+						if ((i & k) != 0 && (tempList[i] < tempList[ixj]) == ascend) {
+							swap(tempList[i], tempList[ixj]);
+						}
+					}
+				}
+			}
+			// print();
+		}
+
+		for (int i = 0; i < listLen; i++) {
+			list[i] = tempList[i];
+		}
+		delete[] tempList;
+	}
+
+	void print() const {
 		for (int i = 0; i < listLen; ++i) {
 			std::cout << list[i] << ',';
 		}
@@ -85,8 +194,6 @@ private:
 		}
 		bitonicMerge(ascend, offset, halfLen);
 		bitonicMerge(ascend, offset + halfLen, len - halfLen);
-
-		print();
 	}
 
 	static void printOperation(std::string operation, bool ascend, int offset, int len)

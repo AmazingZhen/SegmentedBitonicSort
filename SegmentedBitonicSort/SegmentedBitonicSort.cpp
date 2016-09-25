@@ -12,7 +12,7 @@ void segmentedBitonicSort(float* data, int* seg_id, int* seg_start, int n, int m
 		int arrLen = seg_start[i + 1] - seg_start[i];
 
 		BitonicSorter<float, float*> arraySorter(arr, arrLen);
-		arraySorter.sort(true);
+		arraySorter.recursiveSort(true);
 		cout << endl;
 	}
 }
@@ -29,6 +29,15 @@ bool generateRandomNums(float *data, int len) {
 	}
 
 	return true;
+}
+
+template <typename T>
+void print(vector<T> vec)
+{
+	for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
+		std::cout << *iter << ',';
+	}
+	std::cout << std::endl;
 }
 
 int main() {
@@ -48,12 +57,20 @@ int main() {
 		cout << data[i] << endl;
 	}*/
 
-	int len = 10;
+	int len = 11;
 	float *data = new float[len];
 	generateRandomNums(data, len);
 	BitonicSorter<float, float*> arraySorter(data, len);
 	arraySorter.print();
-	arraySorter.sort(true);
+	arraySorter.nonrecursiveSort(true);
+	arraySorter.print();
+
+	//vector<float> vec(data, data + len);
+
+	//print(vec);
+	//bitonicSort_Ascend(vec, *max_element(vec.begin(), vec.end()));
+	//print(vec);
+	//cout << endl;
 
 
 	return 0;
