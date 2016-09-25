@@ -62,7 +62,7 @@ int main() {
 	generateRandomNums(data, len);
 	BitonicSorter<float, float*> arraySorter(data, len);
 	arraySorter.print();
-	arraySorter.nonrecursiveSort(true);
+	arraySorter.nonRecursiveSort(true);
 	arraySorter.print();
 
 	//vector<float> vec(data, data + len);
