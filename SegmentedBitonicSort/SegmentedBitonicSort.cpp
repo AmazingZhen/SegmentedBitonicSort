@@ -6,14 +6,71 @@
 
 using namespace std;
 
+// Not calling any function now.
 void segmentedBitonicSort(float* data, int* seg_id, int* seg_start, int n, int m) {
 	for (int i = 0; i < m; i++) {
-		float* arr = data + seg_start[i];
-		int arrLen = seg_start[i + 1] - seg_start[i];
+		float* list = data + seg_start[i];
+		int listLen = seg_start[i + 1] - seg_start[i];
 
-		BitonicSorter<float, float*> arraySorter(arr, arrLen);
-		arraySorter.recursiveSort(true);
-		cout << endl;
+		// BitonicSorter<float, float*> arraySorter(arr, arrLen);
+		// arraySorter.nonRecursiveSort(true);
+
+		if (listLen == 0) {
+			return;
+		}
+
+		int N = n;
+		--N;
+		N |= N >> 1;
+		N |= N >> 2;
+		N |= N >> 4;
+		N |= N >> 8;
+		N |= N >> 16;
+		N++;
+
+		float* tempList = new float[N];
+
+		float extremum = list[0];
+		for (int i = 1; i < listLen; i++) {
+			if (list[i] > extremum) {
+				extremum = list[i];
+			}
+		}
+
+		for (int i = 0; i < listLen; i++) {
+			tempList[i] = list[i];
+		}
+		for (int i = listLen; i < N; i++) {
+			tempList[i] = extremum;
+		}
+
+		// http://www.tools-of-computing.com/tc/CS/Sorts/bitonic_sort.htm
+		int i, j, k;
+		for (k = 2; k <= N; k = k << 1) {
+			for (j = k >> 1; j > 0; j = j >> 1) {
+				for (i = 0; i < N; i++) {
+					int ixj = i ^ j;
+
+					if ((ixj) > i) {
+						if ((i & k) == 0 && (tempList[i] > tempList[ixj])) {
+							float tmp = tempList[i];
+							tempList[i] = tempList[ixj];
+							tempList[ixj] = tmp;
+						}
+						if ((i & k) != 0 && (tempList[i] < tempList[ixj])) {
+							float tmp = tempList[i];
+							tempList[i] = tempList[ixj];
+							tempList[ixj] = tmp;
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < listLen; i++) {
+			list[i] = tempList[i];
+		}
+		delete[] tempList;
 	}
 }
 
@@ -41,7 +98,7 @@ void print(vector<T> vec)
 }
 
 int main() {
-	/*float data[5] = { 0.8, 0.2, 0.4, 0.6, 0.5 };
+	float data[5] = { 0.8, 0.2, 0.4, 0.6, 0.5 };
 
 	int seg_id[5] = { 0, 0, 1, 1, 1 };
 
@@ -55,23 +112,15 @@ int main() {
 
 	for (int i = 0; i < 5; i++) {
 		cout << data[i] << endl;
-	}*/
+	}
 
-	int len = 11;
+	/*int len = 11;
 	float *data = new float[len];
 	generateRandomNums(data, len);
 	BitonicSorter<float, float*> arraySorter(data, len);
 	arraySorter.print();
 	arraySorter.nonRecursiveSort(true);
-	arraySorter.print();
-
-	//vector<float> vec(data, data + len);
-
-	//print(vec);
-	//bitonicSort_Ascend(vec, *max_element(vec.begin(), vec.end()));
-	//print(vec);
-	//cout << endl;
-
+	arraySorter.print();*/
 
 	return 0;
 }

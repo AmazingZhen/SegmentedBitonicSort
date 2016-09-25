@@ -47,7 +47,7 @@ public:
 		int N = LeastPowerOf2NotLessThan(listLen);
 		List tempList = new Item[N];
 
-		int extremum = list[0];
+		Item extremum = list[0];
 		if (ascend) {
 			for (int i = 1; i < listLen; i++) {
 				if (list[i] > extremum) {
