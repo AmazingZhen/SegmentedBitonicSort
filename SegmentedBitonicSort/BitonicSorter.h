@@ -23,45 +23,6 @@ int GreatestPowerOf2LessThan(int n)
 	return LeastPowerOf2NotLessThan(n) >> 1;
 }
 
-template <typename T>
-static void bitonicSort_Ascend(std::vector<T> &vec, const T &max)
-{
-	int originLen = vec.size();
-	int listLen = LeastPowerOf2NotLessThan(originLen);
-	vec.resize(listLen, max);
-
-	int i, j, k;
-	// k selects the bit position that determines whether the pairs of 
-	// elements are to be exchanged into ascending or descending order.
-	// length of sort interval get doubled every iteration
-	// (because sort recursion is post-ordered).
-	for (k = 2; k <= listLen; k <<= 1) {
-		// j corresponds to the distance apart the elements are that 
-		// are to be compared and conditionally exchanged.
-		// length of merge interval get halved every iteration
-		// (because merge recursion is pre-ordered).
-		for (j = k >> 1; j > 0; j >>= 1) {
-			for (i = 0; i < listLen; ++i) {
-				int ixj = i ^ j;
-				if (i < ixj) {
-					if ((i & k) != 0) {
-						if (vec[i] < vec[ixj]) {
-							std::swap(vec[i], vec[ixj]);
-						}
-					}
-					else {    // ((i & k) == 0)
-						if (vec[i] > vec[ixj]) {
-							std::swap(vec[i], vec[ixj]);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	vec.resize(originLen);
-}
-
 // type of items in List must be Item.
 // there must be operator[] in List.
 template <typename Item, typename List>
@@ -84,12 +45,24 @@ public:
 		std::cout << std::endl;
 	}
 
+	void print(int offset, int len) const {
+		std::cout << offset << ',' << offset + len << std::endl;
+		for (int i = 0; i < listLen; ++i) {
+			if (i == offset + len || i == offset) {
+				std::cout << "|";
+			}
+
+			std::cout << list[i] << ',';
+		}
+		std::cout << std::endl;
+	}
+
 private:
 	void bitonicSort(bool ascend, int offset, int len)
 	{
 		if (len <= 1) { return; }
 
-		//printOperation( "sort", ascend, offset, len );
+		printOperation( "sort", ascend, offset, len );
 
 		int halfLen = len / 2;
 		bitonicSort(!ascend, offset, halfLen);
@@ -102,7 +75,7 @@ private:
 	{
 		if (len <= 1) { return; }
 
-		//printOperation( "merge", ascend, offset, len );
+		printOperation( "merge", ascend, offset, len );
 
 		int halfLen = GreatestPowerOf2LessThan(len);
 		int left = offset;
@@ -112,11 +85,14 @@ private:
 		}
 		bitonicMerge(ascend, offset, halfLen);
 		bitonicMerge(ascend, offset + halfLen, len - halfLen);
+
+		print();
 	}
 
 	static void printOperation(std::string operation, bool ascend, int offset, int len)
 	{
 		std::cout << operation << " " << (ascend ? "up" : "down") << "[" << offset << ", " << offset + len << ")" << std::endl;
+		
 	}
 
 	List &list;

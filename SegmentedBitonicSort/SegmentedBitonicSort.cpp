@@ -12,15 +12,27 @@ void segmentedBitonicSort(float* data, int* seg_id, int* seg_start, int n, int m
 		int arrLen = seg_start[i + 1] - seg_start[i];
 
 		BitonicSorter<float, float*> arraySorter(arr, arrLen);
-		arraySorter.print();
 		arraySorter.sort(true);
-		arraySorter.print();
 		cout << endl;
 	}
 }
 
+float randNumForTest() {
+	float n = (rand() % 100), m = (rand() % 10), q = (rand() % 10);
+	float a = n; // +m / 10 + q / 100;
+	return a;
+}
+
+bool generateRandomNums(float *data, int len) {
+	for (int i = 0; i < len; i++) {
+		data[i] = randNumForTest();
+	}
+
+	return true;
+}
+
 int main() {
-	float data[5] = { 0.8, 0.2, 0.4, 0.6, 0.5 };
+	/*float data[5] = { 0.8, 0.2, 0.4, 0.6, 0.5 };
 
 	int seg_id[5] = { 0, 0, 1, 1, 1 };
 
@@ -34,9 +46,18 @@ int main() {
 
 	for (int i = 0; i < 5; i++) {
 		cout << data[i] << endl;
-	}
+	}*/
+
+	int len = 10;
+	float *data = new float[len];
+	generateRandomNums(data, len);
+	BitonicSorter<float, float*> arraySorter(data, len);
+	arraySorter.print();
+	arraySorter.sort(true);
 
 
 	return 0;
 }
+
+
 
