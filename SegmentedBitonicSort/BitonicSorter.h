@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <ctime>
 
 
 // see [ http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2 ]
@@ -23,6 +24,21 @@ int GreatestPowerOf2LessThan(int n)
 	return LeastPowerOf2NotLessThan(n) >> 1;
 }
 
+void getRandomIndex(int N, std::vector<int>& randomIndex) {
+	srand(time(NULL));
+
+	for (int i = randomIndex.size() - 1; i >= 0; i--) {
+		int randomPos = rand() % (i + 1);
+		std::swap(randomIndex[i], randomIndex[randomPos]);
+	}
+
+	//std::cout << "The random index this time is: " << std::endl;
+	//for (int i = 0; i < N; i++) {
+	//	std::cout << randomIndex[i] << " ";
+	//}
+	//std::cout << std::endl;
+}
+
 // type of items in List must be Item.
 // there must be operator[] in List.
 template <typename Item, typename List>
@@ -37,7 +53,7 @@ public:
 		bitonicSort(ascend, 0, listLen);
 	}
 
-
+	// Have bugs when input has NaN and sorting in descending
     // http://www.tools-of-computing.com/tc/CS/Sorts/bitonic_sort.htm
 	void nonRecursiveSort(bool ascend = true) {
 		if (listLen == 0) {
@@ -50,7 +66,7 @@ public:
 		Item extremum = list[0];
 		if (ascend) {
 			for (int i = 1; i < listLen; i++) {
-				if (list[i] > extremum) {
+				if (list[i] > extremum || extremum != extremum) {
 					extremum = list[i];
 				}
 			}
@@ -70,21 +86,30 @@ public:
 			tempList[i] = extremum;
 		}
 
+		// Test for parallelism.
+		std::vector<int> randomIndex(N);
+		for (int i = 0; i < N; i++) {
+			randomIndex[i] = i;
+		}
+
 		int i, j, k;
 		for (k = 2; k <= N; k = k << 1) {
 			for (j = k >> 1; j > 0; j = j >> 1) {
 				for (i = 0; i < N; i++) {
+				// getRandomIndex(N, randomIndex);
+				// for (int i : randomIndex) {
 					int ixj = i ^ j;
 
 					if ((ixj) > i) {
-						if ((i & k) == 0 && (tempList[i] > tempList[ixj]) == ascend) {
+						if ((i & k) == 0 && (((tempList[ixj] != tempList[ixj]) || (tempList[i] > tempList[ixj]) == ascend))) {
 							swap(tempList[i], tempList[ixj]);
 						}
-						if ((i & k) != 0 && (tempList[i] < tempList[ixj]) == ascend) {
+						if ((i & k) != 0 && (((tempList[i] != tempList[i]) || (tempList[i] < tempList[ixj]) == ascend))) {
 							swap(tempList[i], tempList[ixj]);
 						}
 					}
 				}
+				//print();
 			}
 			// print();
 		}
